@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Create a QR Code — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <a class="side-link" href="/app/dashboard"><span class="ic">🗂️</span>Dashboard</a>
+    <a class="side-link active" href="/app/editor"><span class="ic">➕</span>Create QR Code</a>
+    <a class="side-link" href="/app/analytics"><span class="ic">📊</span>Analytics</a>
+    <a class="side-link" href="/app/bulk"><span class="ic">📦</span>Bulk generator</a>
+    <div class="side-section">Account</div>
+    <a class="side-link" href="/app/account"><span class="ic">⚙️</span>Account</a>
+    <a class="side-link" href="/pricing"><span class="ic">💳</span>Pricing</a>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <div>
+        <input id="qr-title" class="qr-title-input" style="font-size:18px;font-weight:800;border:none;outline:none;padding:6px 0" value="Untitled QR Code"/>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span id="save-status" class="muted small"></span>
+        <button class="btn btn-secondary" id="save-btn">Save</button>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="editor-grid">
+
+        <div class="editor-col">
+          <div class="field"><input id="type-search" placeholder="Search QR type…"/></div>
+          <div id="type-picker" class="type-picker-list"><!-- filled by JS --></div>
+        </div>
+
+        <div class="editor-col" id="content-col">
+          <div class="style-tabs">
+            <div class="style-tab active" data-pane="content-pane">Content</div>
+            <div class="style-tab" data-pane="design-pane">Design</div>
+          </div>
+
+          <div id="content-pane" class="style-pane active">
+            <p id="type-desc" class="muted small" style="margin-top:-8px"></p>
+            <form id="content-form"></form>
+          </div>
+
+          <div id="design-pane" class="style-pane">
+            <div class="field"><label>Foreground color</label>
+              <div class="color-input-row"><input type="color" id="fg-color" value="#0F172A"/><span class="muted small">Dots &amp; corners</span></div>
+            </div>
+            <div class="field"><label>Background color</label>
+              <div class="color-input-row"><input type="color" id="bg-color" value="#ffffff"/><span class="muted small">Behind the code</span></div>
+            </div>
+            <div class="field"><label>Dot style</label>
+              <div class="pill-choice-row" id="dot-style-row">
+                <span class="pill-choice" data-val="square">Square</span>
+                <span class="pill-choice" data-val="dots">Dots</span>
+                <span class="pill-choice active" data-val="rounded">Rounded</span>
+                <span class="pill-choice" data-val="classy">Classy</span>
+                <span class="pill-choice" data-val="classy-rounded">Classy round</span>
+                <span class="pill-choice" data-val="extra-rounded">Extra round</span>
+              </div>
+            </div>
+            <div class="field"><label>Corner style</label>
+              <div class="pill-choice-row" id="corner-style-row">
+                <span class="pill-choice" data-val="square">Square</span>
+                <span class="pill-choice" data-val="dot">Dot</span>
+                <span class="pill-choice active" data-val="extra-rounded">Rounded</span>
+              </div>
+            </div>
+            <div class="field"><label>Logo</label>
+              <div class="logo-drop" id="logo-drop">
+                <div id="logo-preview" class="muted small">Click to upload a logo (optional)</div>
+              </div>
+              <input type="file" id="logo-file" accept="image/*" style="display:none"/>
+              <button type="button" class="btn btn-ghost btn-sm" id="logo-remove" style="display:none;margin-top:6px">Remove logo</button>
+            </div>
+            <div class="field"><label>Frame</label>
+              <div class="pill-choice-row" id="frame-style-row">
+                <span class="pill-choice active" data-val="none">None</span>
+                <span class="pill-choice" data-val="bottom-banner">Bottom banner</span>
+                <span class="pill-choice" data-val="top-banner">Top banner</span>
+              </div>
+            </div>
+            <div class="field" id="frame-text-field" style="display:none">
+              <label>Frame text</label><input id="frame-text" value="SCAN ME"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-col" style="padding:18px 16px">
+          <div class="preview-stage">
+            <div class="mode-toggle">
+              <button type="button" data-mode="dynamic" class="active">Dynamic</button>
+              <button type="button" data-mode="static">Static</button>
+            </div>
+            <p class="muted small" id="mode-help" style="text-align:center;margin:0">Trackable, editable after printing.</p>
+            <div class="qr-preview-frame">
+              <div id="qr-canvas-wrap"></div>
+              <div id="frame-caption-preview" class="frame-caption" style="display:none">SCAN ME</div>
+            </div>
+            <div class="download-row">
+              <button class="btn btn-secondary" data-format="png">PNG</button>
+              <button class="btn btn-secondary" data-format="svg">SVG</button>
+              <button class="btn btn-secondary" data-format="jpeg">JPG</button>
+            </div>
+            <div id="auth-hint" class="muted small" style="text-align:center;display:none">
+              <a href="/signup">Create a free account</a> to save this code and track scans.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/vendor/qr-code-styling.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pricing — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+  .pricing-hero { text-align: center; padding: 64px 0 20px; }
+  .pricing-hero h1 { font-size: 38px; }
+  .billing-toggle { display: inline-flex; background: var(--bg-soft); border-radius: 999px; padding: 4px; margin: 20px 0 40px; }
+  .billing-toggle button { border: none; background: transparent; padding: 9px 20px; border-radius: 999px; font-weight: 700; font-size: 13.5px; color: var(--ink-soft); cursor: pointer; }
+  .billing-toggle button.active { background: #fff; color: var(--brand); box-shadow: var(--shadow); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding-bottom: 70px; align-items: stretch; }
+  .price-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 22px; display: flex; flex-direction: column; background: #fff; }
+  .price-card.featured { border-color: var(--brand); box-shadow: var(--shadow-lg); position: relative; }
+  .price-card.featured::before { content: 'Most popular'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--brand); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 999px; }
+  .price-amt { font-size: 34px; font-weight: 800; margin: 14px 0 2px; }
+  .price-amt span { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .price-feats { list-style: none; padding: 0; margin: 20px 0; flex: 1; }
+  .price-feats li { padding: 8px 0; font-size: 14px; color: var(--ink-soft); border-bottom: 1px dashed var(--border); }
+  .price-feats li::before { content: '\2713  '; color: var(--success); font-weight: 800; }
+  @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .pricing-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <nav class="nav-links">
+      <a href="/#types">QR types</a>
+      <a href="/#features">Features</a>
+      <a href="/pricing">Pricing</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="/login" data-nav="guest" class="btn btn-ghost">Log in</a>
+      <a href="/signup" data-nav="guest" class="btn btn-primary">Sign up free</a>
+      <a href="/app/dashboard" data-nav="user" style="display:none" class="btn btn-primary">Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="pricing-hero">
+    <span class="badge badge-blue">Simple pricing</span>
+    <h1>Plans that grow with you</h1>
+    <p class="muted">Start free. Upgrade when you need more dynamic codes and deeper analytics.</p>
+    <div class="billing-toggle">
+      <button class="active" data-billing="monthly">Monthly</button>
+      <button data-billing="annual">Annual – save 20%</button>
+    </div>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="price-card">
+      <h3>Free</h3>
+      <p class="muted small">For trying things out.</p>
+      <div class="price-amt">$0<span>/mo</span></div>
+      <ul class="price-feats">
+        <li>Unlimited static QR codes</li>
+        <li>3 dynamic QR codes</li>
+        <li>Basic customization</li>
+        <li>7-day scan history</li>
+      </ul>
+      <a href="/signup" class="btn btn-secondary btn-block">Get started</a>
+    </div>
+    <div class="price-card featured">
+      <h3>Starter</h3>
+      <p class="muted small">For individuals &amp; small projects.</p>
+      <div class="price-amt" data-monthly="$9" data-annual="$7">$9<span>/mo</span></div>
+      <ul class="price-feats">
+        <li>25 dynamic QR codes</li>
+        <li>Full design customization</li>
+        <li>Logo &amp; frames</li>
+        <li>90-day scan analytics</li>
+        <li>2 folders</li>
+      </ul>
+      <a href="/signup" class="btn btn-primary btn-block">Start free trial</a>
+    </div>
+    <div class="price-card">
+      <h3>Pro</h3>
+      <p class="muted small">For growing businesses.</p>
+      <div class="price-amt" data-monthly="$29" data-annual="$23">$29<span>/mo</span></div>
+      <ul class="price-feats">
+        <li>Unlimited dynamic QR codes</li>
+        <li>Bulk CSV generation</li>
+        <li>Unlimited folders</li>
+        <li>Unlimited scan history</li>
+        <li>Remove QRfy Clone branding</li>
+      </ul>
+      <a href="/signup" class="btn btn-secondary btn-block">Start free trial</a>
+    </div>
+    <div class="price-card">
+      <h3>Business</h3>
+      <p class="muted small">For teams &amp; agencies.</p>
+      <div class="price-amt" data-monthly="$79" data-annual="$63">$79<span>/mo</span></div>
+      <ul class="price-feats">
+        <li>Everything in Pro</li>
+        <li>Team member seats</li>
+        <li>API access</li>
+        <li>Priority support</li>
+        <li>Custom domain for short links</li>
+      </ul>
+      <a href="/signup" class="btn btn-secondary btn-block">Contact sales</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> QRfy Clone. Demo project — pricing is illustrative, no payment is actually processed.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/common.js"></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.querySelectorAll('.billing-toggle button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.billing-toggle button').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = btn.dataset.billing;
+      document.querySelectorAll('.price-amt[data-monthly]').forEach((el) => {
+        const amt = key === 'annual' ? el.dataset.annual : el.dataset.monthly;
+        el.innerHTML = `${amt}<span>/mo</span>`;
+      });
+    });
+  });
+</script>
+</body>
+</html>

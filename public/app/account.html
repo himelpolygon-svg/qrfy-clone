@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Account — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <a class="side-link" href="/app/dashboard"><span class="ic">🗂️</span>Dashboard</a>
+    <a class="side-link" href="/app/editor"><span class="ic">➕</span>Create QR Code</a>
+    <a class="side-link" href="/app/analytics"><span class="ic">📊</span>Analytics</a>
+    <a class="side-link" href="/app/bulk"><span class="ic">📦</span>Bulk generator</a>
+    <div class="side-section">Account</div>
+    <a class="side-link active" href="/app/account"><span class="ic">⚙️</span>Account</a>
+    <a class="side-link" href="/pricing"><span class="ic">💳</span>Pricing</a>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar"><strong>Account</strong></div>
+    <div class="app-content" style="max-width:560px">
+      <div class="card card-pad">
+        <h3>Profile</h3>
+        <div class="field"><label>Name</label><input id="acc-name" disabled/></div>
+        <div class="field"><label>Email</label><input id="acc-email" disabled/></div>
+        <div class="field"><label>Member since</label><input id="acc-since" disabled/></div>
+      </div>
+      <div class="card card-pad" style="margin-top:16px">
+        <h3>Plan</h3>
+        <p class="muted">You're currently on the <strong id="acc-plan">Free</strong> plan.</p>
+        <a href="/pricing" class="btn btn-primary">View plans</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/common.js"></script>
+<script>
+  document.getElementById('logout-btn').addEventListener('click', async () => { await api('/logout', { method: 'POST' }); location.href = '/'; });
+  (async function boot() {
+    const { user } = await api('/me').catch(() => ({ user: null }));
+    if (!user) { location.href = '/login'; return; }
+    document.getElementById('acc-name').value = user.name;
+    document.getElementById('acc-email').value = user.email;
+    document.getElementById('acc-since').value = new Date(user.created_at + 'Z').toLocaleDateString();
+    document.getElementById('acc-plan').textContent = user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <a class="side-link active" href="/app/dashboard"><span class="ic">🗂️</span>Dashboard</a>
+    <a class="side-link" href="/app/editor"><span class="ic">➕</span>Create QR Code</a>
+    <a class="side-link" href="/app/analytics"><span class="ic">📊</span>Analytics</a>
+    <a class="side-link" href="/app/bulk"><span class="ic">📦</span>Bulk generator</a>
+    <div class="side-section">Folders</div>
+    <div id="folder-list"></div>
+    <button class="btn btn-ghost btn-sm" id="new-folder-btn" style="margin:6px 12px;text-align:left">+ New folder</button>
+    <div class="side-section">Account</div>
+    <a class="side-link" href="/app/account"><span class="ic">⚙️</span>Account</a>
+    <a class="side-link" href="/pricing"><span class="ic">💳</span>Pricing</a>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <div><strong>My QR Codes</strong></div>
+      <a href="/app/editor" class="btn btn-primary">+ Create QR Code</a>
+    </div>
+    <div class="app-content">
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="stat-label">Total QR codes</div><div class="stat-value" id="stat-total">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Dynamic codes</div><div class="stat-value" id="stat-dynamic">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Total scans</div><div class="stat-value" id="stat-scans">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Plan</div><div class="stat-value" id="stat-plan" style="font-size:20px">–</div></div>
+      </div>
+
+      <div class="qr-toolbar">
+        <div class="search-box"><input id="search-input" placeholder="Search your QR codes…"/></div>
+        <div style="display:flex;gap:8px">
+          <select id="filter-folder"><option value="">All folders</option></select>
+          <select id="filter-type"><option value="">All types</option></select>
+        </div>
+      </div>
+
+      <div id="qr-grid" class="qr-grid"></div>
+      <div id="empty-state" class="empty-state" style="display:none">
+        <h3>No QR codes yet</h3>
+        <p>Create your first one to get started.</p>
+        <a href="/app/editor" class="btn btn-primary">+ Create QR Code</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/vendor/qr-code-styling.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

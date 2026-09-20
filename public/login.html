@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Log in — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/auth.css"/>
+</head>
+<body>
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <div class="nav-actions"><a href="/signup" class="btn btn-primary">Sign up free</a></div>
+  </div>
+</header>
+<div class="auth-wrap">
+  <div class="auth-card card card-pad">
+    <h1>Welcome back</h1>
+    <p class="muted">Log in to manage your QR codes.</p>
+    <div id="error" class="form-error"></div>
+    <form id="login-form">
+      <div class="field"><label>Email</label><input type="email" name="email" required placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input type="password" name="password" required placeholder="Your password"/></div>
+      <button class="btn btn-primary btn-block" type="submit">Log in</button>
+    </form>
+    <div class="auth-switch">New here? <a href="/signup">Create a free account</a></div>
+  </div>
+</div>
+<script src="/js/common.js"></script>
+<script>
+  const form = document.getElementById('login-form');
+  const errorBox = document.getElementById('error');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    const fd = new FormData(form);
+    try {
+      await api('/login', { method: 'POST', body: { email: fd.get('email'), password: fd.get('password') } });
+      location.href = '/app/dashboard';
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.add('show');
+    }
+  });
+</script>
+</body>
+</html>

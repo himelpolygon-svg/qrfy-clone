@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Bulk QR Code Generator — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <a class="side-link" href="/app/dashboard"><span class="ic">🗂️</span>Dashboard</a>
+    <a class="side-link" href="/app/editor"><span class="ic">➕</span>Create QR Code</a>
+    <a class="side-link" href="/app/analytics"><span class="ic">📊</span>Analytics</a>
+    <a class="side-link active" href="/app/bulk"><span class="ic">📦</span>Bulk generator</a>
+    <div class="side-section">Account</div>
+    <a class="side-link" href="/app/account"><span class="ic">⚙️</span>Account</a>
+    <a class="side-link" href="/pricing"><span class="ic">💳</span>Pricing</a>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar"><strong>Bulk QR code generator</strong></div>
+    <div class="app-content" style="max-width:760px">
+      <div class="card card-pad">
+        <h3>1. Upload a CSV</h3>
+        <p class="muted small">Two columns: <code>title</code> and <code>url</code>. Up to 500 rows per file.</p>
+        <a id="sample-csv" class="btn btn-secondary btn-sm" style="margin-bottom:14px">Download sample CSV</a>
+        <input type="file" id="csv-file" accept=".csv"/>
+        <p id="csv-summary" class="muted small" style="margin-top:10px"></p>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px">
+        <h3>2. Choose style &amp; mode</h3>
+        <div class="field-row">
+          <div class="field"><label>Foreground color</label><div class="color-input-row"><input type="color" id="fg-color" value="#0F172A"/></div></div>
+          <div class="field"><label>Background color</label><div class="color-input-row"><input type="color" id="bg-color" value="#ffffff"/></div></div>
+        </div>
+        <div class="field">
+          <label>Mode</label>
+          <div class="pill-choice-row">
+            <span class="pill-choice active" data-mode="dynamic">Dynamic (trackable)</span>
+            <span class="pill-choice" data-mode="static">Static</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px">
+        <h3>3. Preview</h3>
+        <div id="preview-table"></div>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px">
+        <h3>4. Generate</h3>
+        <button class="btn btn-primary" id="generate-btn" disabled>Generate &amp; download ZIP</button>
+        <p id="progress-text" class="muted small" style="margin-top:10px"></p>
+        <div style="background:#F1F5F9;border-radius:8px;height:8px;overflow:hidden;margin-top:8px;display:none" id="progress-bar-wrap">
+          <div id="progress-bar" style="background:var(--brand);height:100%;width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hidden-qr" style="position:fixed;left:-9999px;top:-9999px"></div>
+
+<script src="/vendor/qr-code-styling.js"></script>
+<script src="/vendor/jszip.min.js"></script>
+<script src="/vendor/papaparse.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/bulk.js"></script>
+</body>
+</html>

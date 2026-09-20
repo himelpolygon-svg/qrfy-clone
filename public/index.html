@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>QRfy Clone — Free QR Code Generator with Logo, Tracking & Custom Design</title>
+<meta name="description" content="Create beautiful, trackable QR codes for websites, PDFs, vCards, WiFi, menus and more. Customize with your logo, colors and frames."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/landing-page.css"/>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <nav class="nav-links">
+      <a href="/#types">QR types</a>
+      <a href="/#features">Features</a>
+      <a href="/#how-it-works">How it works</a>
+      <a href="/pricing">Pricing</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="/login" data-nav="guest" class="btn btn-ghost">Log in</a>
+      <a href="/signup" data-nav="guest" class="btn btn-primary">Sign up free</a>
+      <a href="/app/dashboard" data-nav="user" style="display:none" class="btn btn-primary">Go to dashboard</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <span class="badge badge-blue">Free forever plan</span>
+      <h1>QR Codes that look great <span class="text-brand">and</span> actually work.</h1>
+      <p class="hero-sub">Generate custom QR codes for websites, PDFs, menus, WiFi, business cards and more. Add your logo, pick your colors, and track every scan in real time.</p>
+      <form id="hero-form" class="hero-form">
+        <input id="hero-url" type="text" placeholder="Paste a URL or type any text…" value="https://polygontechlimited.com"/>
+        <button class="btn btn-primary" type="submit">Generate QR Code</button>
+      </form>
+      <div class="hero-trust">
+        <div><strong>21</strong><span>QR code types</span></div>
+        <div><strong>100%</strong><span>customizable design</span></div>
+        <div><strong>Live</strong><span>scan analytics</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-qr-card">
+        <div id="hero-qr" class="hero-qr-canvas"></div>
+        <div class="hero-qr-caption">SCAN ME</div>
+      </div>
+      <a href="/signup" class="btn btn-secondary hero-customize-link">Customize this code →</a>
+    </div>
+  </div>
+</section>
+
+<section id="types" class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>One generator, every kind of QR code</h2>
+      <p>Pick a type, fill in the details, and your QR code updates instantly.</p>
+    </div>
+    <div id="type-grid" class="type-grid"><!-- filled by JS --></div>
+  </div>
+</section>
+
+<section id="features" class="section section-soft">
+  <div class="container">
+    <div class="section-head">
+      <h2>Everything you need to run QR codes at scale</h2>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-ic">🎨</div>
+        <h3>Full visual customization</h3>
+        <p>Colors, gradients, dot styles, corner styles, your logo and a call-to-action frame — make every code on-brand.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ic">🔄</div>
+        <h3>Dynamic, editable codes</h3>
+        <p>Change the destination anytime without reprinting. One code, unlimited updates.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ic">📊</div>
+        <h3>Real scan analytics</h3>
+        <p>See scans over time, device, browser and location breakdowns for every dynamic code.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ic">📁</div>
+        <h3>Folders &amp; organization</h3>
+        <p>Group codes into folders, search and filter your whole library from one dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ic">📦</div>
+        <h3>Bulk generation</h3>
+        <p>Upload a CSV and generate hundreds of QR codes at once, downloaded as a single ZIP.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ic">⬇️</div>
+        <h3>Export anywhere</h3>
+        <p>Download in PNG, SVG or JPEG at print-ready resolution.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>How it works</h2>
+    </div>
+    <div class="steps-row">
+      <div class="step"><div class="step-num">1</div><h3>Choose a type</h3><p>Website, vCard, WiFi, PDF, menu and 15+ more.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Add your content</h3><p>Fill in the details — your preview updates live.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Design it</h3><p>Match your brand with colors, a logo and a frame.</p></div>
+      <div class="step"><div class="step-num">4</div><h3>Download &amp; track</h3><p>Export your code and watch scans roll in.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head"><h2>Loved by teams who print a lot of QR codes</h2></div>
+    <div class="testimonial-grid">
+      <div class="testimonial-card"><p>"We swapped our static menu codes for dynamic ones — now we update pricing without reprinting a single table tent."</p><strong>Restaurant Group Owner</strong><span>Hospitality</span></div>
+      <div class="testimonial-card"><p>"The scan analytics told us which flyer locations actually worked. Easy call after that."</p><strong>Marketing Lead</strong><span>Retail</span></div>
+      <div class="testimonial-card"><p>"Bulk-generated 300 codes for our warehouse in under a minute."</p><strong>Operations Manager</strong><span>Logistics</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-band-inner">
+    <h2>Ready to make your first QR code?</h2>
+    <a href="/signup" class="btn btn-primary btn-lg">Get started — it's free</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+        <p class="small" style="margin-top:12px;max-width:260px">A full-featured QR code platform — built as an open demo project.</p>
+      </div>
+      <div><h4>Product</h4><a href="/#types">QR types</a><a href="/#features">Features</a><a href="/pricing">Pricing</a></div>
+      <div><h4>Account</h4><a href="/signup">Sign up</a><a href="/login">Log in</a><a href="/app/dashboard">Dashboard</a></div>
+      <div><h4>Resources</h4><a href="/pricing">Plans &amp; pricing</a><a href="/app/bulk">Bulk generator</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> QRfy Clone. Demo project, not affiliated with QRfy.com.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/vendor/qr-code-styling.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/landing.js"></script>
+</body>
+</html>

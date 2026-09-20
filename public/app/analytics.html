@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Analytics — QRfy Clone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.svg"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/app.css"/>
+<style>
+  .chart-card { padding: 20px; }
+  .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .chart-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.data-table th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+  table.data-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); }
+  .code-select { max-width: 320px; }
+  @media (max-width: 900px) { .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <a href="/" class="brand"><span class="logo-mark">Q</span>QRfy Clone</a>
+    <a class="side-link" href="/app/dashboard"><span class="ic">🗂️</span>Dashboard</a>
+    <a class="side-link" href="/app/editor"><span class="ic">➕</span>Create QR Code</a>
+    <a class="side-link active" href="/app/analytics"><span class="ic">📊</span>Analytics</a>
+    <a class="side-link" href="/app/bulk"><span class="ic">📦</span>Bulk generator</a>
+    <div class="side-section">Account</div>
+    <a class="side-link" href="/app/account"><span class="ic">⚙️</span>Account</a>
+    <a class="side-link" href="/pricing"><span class="ic">💳</span>Pricing</a>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <strong>Analytics</strong>
+      <select id="code-select" class="code-select"><option value="">All QR codes (account overview)</option></select>
+    </div>
+    <div class="app-content">
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="stat-label">Total scans</div><div class="stat-value" id="stat-scans">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Last 30 days</div><div class="stat-value" id="stat-30d">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Top device</div><div class="stat-value" id="stat-device" style="font-size:18px">–</div></div>
+        <div class="stat-tile"><div class="stat-label">Top country</div><div class="stat-value" id="stat-country" style="font-size:18px">–</div></div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card chart-card"><h3>Scans over time</h3><canvas id="chart-series" height="110"></canvas></div>
+        <div class="card chart-card"><h3>By device</h3><canvas id="chart-device" height="110"></canvas></div>
+      </div>
+      <div class="chart-grid-3" style="margin-bottom:16px">
+        <div class="card chart-card"><h3>By browser</h3><canvas id="chart-browser" height="110"></canvas></div>
+        <div class="card chart-card" style="grid-column: span 2"><h3>By country</h3><canvas id="chart-country" height="110"></canvas></div>
+      </div>
+
+      <div class="card card-pad" id="top-codes-card">
+        <h3>Top performing QR codes</h3>
+        <table class="data-table"><thead><tr><th>Title</th><th>Type</th><th>Scans</th></tr></thead><tbody id="top-codes-body"></tbody></table>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px" id="recent-card" style="display:none">
+        <h3>Recent scans</h3>
+        <table class="data-table"><thead><tr><th>When</th><th>Device</th><th>Browser</th><th>OS</th><th>Location</th></tr></thead><tbody id="recent-body"></tbody></table>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px;display:none" id="feedback-card">
+        <h3>Feedback responses</h3>
+        <div id="feedback-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/vendor/chart.umd.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/analytics.js"></script>
+</body>
+</html>
