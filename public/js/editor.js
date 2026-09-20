@@ -10,6 +10,7 @@ let currentUser = null;
 
 const state = {
   id: null,
+  shortCode: null,
   title: 'Untitled QR Code',
   qrType: params.get('type') || 'url',
   mode: 'dynamic',
@@ -66,7 +67,11 @@ function buildStaticValueClient(qrType, c = {}) {
 
 function previewData() {
   if (state.mode === 'static') return buildStaticValueClient(state.qrType, state.content);
-  return `${location.origin}/r/xxxxxxxx`;
+  // A dynamic code's real, scannable link only exists once it's been saved and
+  // the server has assigned a short_code - until then this is just a preview
+  // placeholder. Downloads are blocked below while state.shortCode is empty so
+  // nobody exports a QR code encoding this fake "xxxxxxxx" address.
+  return `${location.origin}/r/${state.shortCode || 'xxxxxxxx'}`;
 }
 
 function updatePreview() {
@@ -369,6 +374,17 @@ function triggerDownload(dataUrl, filename) {
 
 document.querySelectorAll('[data-format]').forEach((btn) => {
   btn.addEventListener('click', async () => {
+    // A dynamic QR code encodes a short link the server has to know about
+    // (/r/<shortCode>) - if it hasn't been saved yet there is no real
+    // shortCode, and downloading now would bake in a link that goes nowhere.
+    // (This was the "scanning takes me to /r/xxxxxxxx" bug - it always
+    // downloaded before, using a hardcoded placeholder that never resolves.)
+    if (state.mode === 'dynamic' && !state.shortCode) {
+      alert(currentUser
+        ? 'Save this QR code first — dynamic codes need a saved, trackable link before they can be downloaded.'
+        : 'Sign up free and save this QR code first — dynamic codes need a saved, trackable link before they can be downloaded. (Or switch to Static mode to download immediately.)');
+      return;
+    }
     const fmt = btn.dataset.format;
     const filenameBase = (state.title || 'qrcode').replace(/[^a-z0-9\-]+/gi, '_');
     if (fmt === 'svg') {
@@ -401,6 +417,11 @@ document.getElementById('save-btn').addEventListener('click', async () => {
       result = await api('/qrcodes', { method: 'POST', body: payload });
       state.id = result.qrcode.id;
     }
+    // Pick up the real short_code the server assigned so the preview (and any
+    // download from here on) encodes the actual working /r/<code> link instead
+    // of the placeholder.
+    state.shortCode = result.qrcode.short_code || state.shortCode;
+    updatePreview();
     statusEl.textContent = 'Saved just now';
     setTimeout(() => (statusEl.textContent = ''), 2500);
   } catch (err) {
@@ -426,6 +447,7 @@ async function boot() {
     try {
       const { qrcode } = await api(`/qrcodes/${editId}`);
       state.id = qrcode.id;
+      state.shortCode = qrcode.short_code || null;
       state.title = qrcode.title;
       state.qrType = qrcode.qr_type;
       state.mode = qrcode.mode;
