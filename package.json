@@ -4,6 +4,9 @@
   "description": "A full-featured QR code generator platform inspired by QRfy.com — dynamic & static QR codes, full visual customization, scan analytics, folders, bulk generation, and accounts.",
   "main": "server/index.js",
   "type": "commonjs",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js"
