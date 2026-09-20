@@ -42,7 +42,7 @@ function renderOverview(data) {
   renderBar('chart-browser', 'browser', data.byBrowser, 'browser', 'count');
   renderBar('chart-country', 'country', data.byCountry, 'country', 'count');
 
-  document.getElementById('top-codes-body').innerHTML = (data.topCodes || []).map((c) => `<tr><td>${c.title}</td><td>${c.qr_type}</td><td>${c.scanCount}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No data yet.</td></tr>';
+  document.getElementById('top-codes-body').innerHTML = (data.topCodes || []).map((c) => `<tr><td>${escapeHtml(c.title)}</td><td>${escapeHtml(c.qr_type)}</td><td>${c.scanCount}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">No data yet.</td></tr>';
   document.getElementById('top-codes-card').style.display = '';
   document.getElementById('recent-card').style.display = 'none';
   document.getElementById('feedback-card').style.display = 'none';
@@ -62,8 +62,14 @@ function renderSingle(data, qrType) {
 
   document.getElementById('top-codes-card').style.display = 'none';
   document.getElementById('recent-card').style.display = '';
+  // device/browser/os are parsed from the scanning visitor's User-Agent header,
+  // and feedback answers are typed in by whoever scans the code - both are
+  // untrusted, attacker-controllable input from a third party (not this
+  // account's own data), so they must be escaped before going into the QR
+  // owner's analytics page via innerHTML, or a crafted UA/feedback submission
+  // could run script in the owner's browser.
   document.getElementById('recent-body').innerHTML = (data.recent || []).map((r) => `
-    <tr><td>${new Date(r.scanned_at + 'Z').toLocaleString()}</td><td>${r.device}</td><td>${r.browser}</td><td>${r.os}</td><td>${[r.city, r.country].filter(Boolean).join(', ') || '–'}</td></tr>
+    <tr><td>${new Date(r.scanned_at + 'Z').toLocaleString()}</td><td>${escapeHtml(r.device)}</td><td>${escapeHtml(r.browser)}</td><td>${escapeHtml(r.os)}</td><td>${escapeHtml([r.city, r.country].filter(Boolean).join(', ')) || '–'}</td></tr>
   `).join('') || '<tr><td colspan="5" class="muted">No scans yet — share the QR code to see activity here.</td></tr>';
 
   if (qrType === 'feedback' && data.feedback && data.feedback.length) {
@@ -71,7 +77,7 @@ function renderSingle(data, qrType) {
     document.getElementById('feedback-list').innerHTML = data.feedback.map((f) => `
       <div style="padding:10px 0;border-bottom:1px solid var(--border)">
         <div class="muted small">${new Date(f.submitted_at + 'Z').toLocaleString()}</div>
-        ${Object.values(f.answers).map((a) => `<div>${a}</div>`).join('')}
+        ${Object.values(f.answers).map((a) => `<div>${escapeHtml(a)}</div>`).join('')}
       </div>
     `).join('');
   } else {
@@ -98,7 +104,7 @@ async function boot() {
   const { qrcodes } = await api('/qrcodes');
   const dynamicCodes = qrcodes.filter((q) => q.mode === 'dynamic');
   const sel = document.getElementById('code-select');
-  sel.innerHTML = '<option value="">All QR codes (account overview)</option>' + dynamicCodes.map((q) => `<option value="${q.id}">${q.title}</option>`).join('');
+  sel.innerHTML = '<option value="">All QR codes (account overview)</option>' + dynamicCodes.map((q) => `<option value="${q.id}">${escapeHtml(q.title)}</option>`).join('');
 
   const params = new URLSearchParams(location.search);
   const preselect = params.get('id');

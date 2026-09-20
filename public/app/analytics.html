@@ -12,11 +12,12 @@
   .chart-card { padding: 20px; }
   .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
   .chart-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .chart-card-wide { grid-column: span 2; }
   table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   table.data-table th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--border); }
   table.data-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); }
   .code-select { max-width: 320px; }
-  @media (max-width: 900px) { .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; } .chart-card-wide { grid-column: auto; } }
 </style>
 </head>
 <body>
@@ -54,7 +55,7 @@
       </div>
       <div class="chart-grid-3" style="margin-bottom:16px">
         <div class="card chart-card"><h3>By browser</h3><canvas id="chart-browser" height="110"></canvas></div>
-        <div class="card chart-card" style="grid-column: span 2"><h3>By country</h3><canvas id="chart-country" height="110"></canvas></div>
+        <div class="card chart-card chart-card-wide"><h3>By country</h3><canvas id="chart-country" height="110"></canvas></div>
       </div>
 
       <div class="card card-pad" id="top-codes-card">

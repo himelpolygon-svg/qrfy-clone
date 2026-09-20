@@ -1,0 +1,48 @@
+# QA Report — QRfy Clone
+
+Date: 2026-09-20
+Scope: full-stack QA pass (auth, QR editor for all 21 types, dynamic redirect/landing routes, dashboard/folders/analytics, bulk generator, file uploads, responsive layout) across both server and client code.
+
+10 confirmed, reproducible bugs were found and fixed. Each was verified broken before the fix and verified working after, using the running app (curl against the API, and Playwright driving a real Chromium browser against the editor/dashboard/analytics/homepage pages).
+
+## High severity
+
+**1. Frame/banner settings silently corrupted in the QR editor** (`public/js/editor.js`)
+Clicking any frame style pill ("Bottom banner", "Top banner", or "None") replaced the `state.style.frame` object (`{style, text}`) with a bare string, because the generic pill-handler ran before the frame-specific handler and clobbered it first. Effects: custom banner text was always silently discarded (hardcoded "SCAN ME" showed instead), the top/bottom banner position never actually applied, and selecting "None" no longer turned the banner off — a banner with the wrong text stayed on every future preview and every downloaded PNG/JPG. Fixed by only writing the scalar `state.style[key] = ...` for pill rows that hold a plain value, and mutating `state.style.frame.style` in place for the frame row instead of overwriting the object.
+
+**2. Cross-account folder assignment (IDOR)** (`server/routes/qrcodes.js`)
+`POST /api/qrcodes` and `PUT /api/qrcodes/:id` accepted any `folderId` from the request body with no check that the folder belonged to the logged-in user. Since folder IDs are a single global sequence, any authenticated user could file a QR code into another account's folder ID, inflating that other account's folder counts with codes that don't even appear in their own list. Verified: user A assigned a QR code to user B's folder and B's count jumped from 0 to 1. Fixed by validating the folder belongs to `req.user.id` before using it (returns null/unassigned otherwise), and hardened the folder-count query itself to double-check ownership.
+
+**3. Anonymous, unrestricted file upload** (`server/index.js`)
+`POST /api/upload` (used for the editor's logo upload) had no authentication and no file-type restriction — anyone, logged in or not, could upload any file (up to 3MB) and have it hosted publicly on the server's domain. Verified with a plain `.txt` upload while logged out. Fixed by requiring login and restricting to actual image MIME types (PNG/JPEG/WEBP/GIF/SVG).
+
+## Medium severity
+
+**4. Stack traces leaked to the client on any request error** (`server/index.js`)
+There was no global Express error handler, so any synchronous exception — a malformed JSON body being the easiest to trigger — fell through to Express's default handler, which returns the full Node stack trace (internal file paths, dependency versions) as an HTML page. Verified with an intentionally broken JSON request body. Fixed by adding a catch-all error-handling middleware that logs server-side and returns a clean `{"error": "..."}` JSON response instead.
+
+**5. Event QR codes get the wrong start/end time when the server's timezone differs from the browser's** (`server/lib/encode.js`)
+The Event QR type's `.ics` file is built from a `datetime-local` input (a timezone-less "wall clock" value like `2026-10-01T18:00`). The old code ran it through `new Date(value)` and stamped the result with a UTC `Z` suffix — silently reinterpreting the value using the *server process's* timezone rather than preserving the time the user actually typed. On this deployment the effect is real: a 6:00 PM event was encoded as 12:00 (a 6-hour shift, matching the sandbox's UTC+6 clock) — and on Render (UTC), it would shift by a different amount again depending on where the visitor's calendar app is. Fixed by parsing the date components directly and emitting an iCalendar "floating" local time (no `Z`), which every calendar app correctly reads back as the same wall-clock time the user entered.
+
+**6. Static "Email" QR codes silently drop the message body** (`public/js/editor.js`)
+The editor's live preview and the actual downloaded PNG/JPG/SVG for a static QR code are built from a client-side re-implementation of the encoding logic (`buildStaticValueClient`), which is separate from the server's copy. Its `email` case only ever included the `subject` field and dropped `body` entirely — so anyone who typed a message body (with or without a subject) got a QR code that opens their recipient's mail app with no message, while the copy saved to their account (built server-side) was actually correct. Fixed the client copy to include both `subject` and `body`, matching the server; also fixed the same file's WhatsApp preview to include the pre-filled message text like the server version does.
+
+**7. WiFi static QR codes could be corrupted by special characters in the SSID/password** (`server/lib/encode.js`, `public/js/editor.js`)
+The `WIFI:T:...;S:...;P:...;;` payload format requires backslash-escaping `\`, `;`, `,` and `:` inside the network name and password (the same way vCard fields were already escaped elsewhere in this codebase) — the WiFi builder didn't do this. A password or SSID containing any of those characters (not unusual — e.g. `p@ss:word`) produced a QR code that most phones would misparse or truncate. Verified and fixed on both the server (the value actually saved/exported) and the client preview.
+
+**8. Stored/reflected XSS via unescaped user content in the dashboard, analytics, and bulk pages** (`public/js/dashboard.js`, `public/js/analytics.js`, `public/js/bulk.js`, `public/js/common.js`)
+QR code titles, folder names, and bulk-CSV preview rows were inserted into the page via `innerHTML` without escaping, so a title like `<img src=x onerror=...>` would execute the next time the owner opened their own dashboard. More seriously, the analytics page rendered scan device/browser/OS (parsed from the *scanning visitor's* User-Agent header) and feedback-form answers (typed by whoever scans a Feedback QR code) the same unescaped way — meaning a third party (not the account owner) could craft a scan or feedback submission that runs script in the QR code *owner's* browser when they check their analytics. Verified the payload executed before the fix and is now rendered as inert text. Fixed by adding a shared `escapeHtml()` helper and applying it everywhere user- or visitor-supplied text is inserted via `innerHTML`.
+
+**9. Analytics page has horizontal scroll on mobile** (`public/app/analytics.html`)
+The "By country" chart card used an inline `style="grid-column: span 2"` to widen it in the 3-column desktop layout. Because inline styles aren't overridden by the mobile media query that collapses the grid to 1 column, the `span 2` forced the browser to fabricate an extra (empty) grid column, pushing the page 11px past the viewport width and creating a horizontal scrollbar on phones. Fixed by moving the span to a CSS class that the same media query can properly reset to `grid-column: auto` on narrow screens.
+
+**10. Homepage hero section overflows and creates horizontal scroll on mobile** (`public/css/landing-page.css`)
+The hero's URL input + "Generate" button row (`.hero-form`) is a flex row whose `<input>` never had `min-width: 0`; the browser default `min-width: auto` on a flex/grid child means it can't shrink below its intrinsic content width. On a 375px-wide phone this forced the whole hero column roughly 75px wider than the screen, creating a horizontal scrollbar on the very first thing a mobile visitor sees. Fixed by adding `min-width: 0` to the input and to the hero's grid columns generally.
+
+## Verification
+
+Every fix above was confirmed with an automated reproduction before and after the change: curl-driven API tests for the IDOR, upload, error-handling, WiFi-escaping and event-timezone bugs; a headless-Chromium (Playwright) script driving the real editor UI for the frame bug and the dashboard for the XSS bug; and a full-page horizontal-overflow scan across all six main pages at a 375px mobile viewport for the two CSS bugs. All ten now pass; a full regression pass of signup/login/logout, QR creation across representative types (URL, WiFi, vCard, Event, Feedback, WhatsApp, App, Location, Social, Link-list, Menu), and the `/r/:code` redirect/landing/file-download routes was re-run afterward with no new issues.
+
+## Not changed (pre-existing, already documented, out of scope for this pass)
+
+The README already flags plan limits not being enforced and payments being a UI-only mockup — these are intentional scope limits of the demo, not bugs, and were left as-is.

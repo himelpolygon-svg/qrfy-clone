@@ -6,6 +6,14 @@ function escapeVCard(str = '') {
   return String(str).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
 }
 
+// WIFI: QR payloads are semicolon/colon-delimited (WIFI:T:...;S:...;P:...;;),
+// so an SSID or password containing \\, ;, , or : must be backslash-escaped
+// per spec, or it silently truncates/corrupts the network name or password
+// that phones read back out of the code.
+function escapeWifi(str = '') {
+  return String(str).replace(/([\\;,:])/g, '\\$1');
+}
+
 function buildVCard(c, plus) {
   const lines = [
     'BEGIN:VCARD',
@@ -27,9 +35,18 @@ function buildVCard(c, plus) {
 
 function toICalDate(value) {
   if (!value) return '';
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return '';
-  return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  // `value` comes from an HTML datetime-local input ("YYYY-MM-DDTHH:mm") with
+  // no timezone attached - it's the wall-clock time the event creator typed,
+  // e.g. "6pm at the venue". Parsing it with `new Date(value)` interprets it
+  // in the SERVER process's timezone and `.toISOString()` then stamps it with
+  // a 'Z' as if that were UTC, which silently shifts the event by however many
+  // hours the server's timezone differs from the browser's. Instead, pull the
+  // digits out directly and emit an iCalendar "floating" local time (no Z),
+  // which calendar apps correctly read back as that same wall-clock time.
+  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return '';
+  const [, y, mo, d, h, mi, s] = m;
+  return `${y}${mo}${d}T${h}${mi}${s || '00'}`;
 }
 
 function buildICS(c) {
@@ -67,7 +84,7 @@ function buildStaticValue(qrType, c = {}) {
       return `https://wa.me/${digits}${c.message ? '?text=' + encodeURIComponent(c.message) : ''}`;
     }
     case 'wifi':
-      return `WIFI:T:${c.encryption || 'WPA'};S:${c.ssid || ''};P:${c.password || ''};H:${c.hidden ? 'true' : 'false'};;`;
+      return `WIFI:T:${c.encryption || 'WPA'};S:${escapeWifi(c.ssid || '')};P:${escapeWifi(c.password || '')};H:${c.hidden ? 'true' : 'false'};;`;
     case 'vcard': return buildVCard(c, false);
     case 'vcard-plus': return buildVCard(c, true);
     case 'location': return `geo:${c.lat || 0},${c.lng || 0}${c.label ? '?q=' + encodeURIComponent(c.label) : ''}`;

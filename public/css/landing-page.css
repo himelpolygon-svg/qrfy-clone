@@ -2,10 +2,11 @@
 
 .hero { padding: 64px 0 40px; background: radial-gradient(circle at 80% 0%, #EEF3FF 0%, #fff 55%); }
 .hero-inner { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; }
+.hero-inner > * { min-width: 0; }
 .hero h1 { font-size: 46px; margin: 16px 0 18px; }
 .hero-sub { font-size: 17px; max-width: 480px; }
 .hero-form { display: flex; gap: 10px; margin: 26px 0; max-width: 480px; }
-.hero-form input { flex: 1; padding: 14px 18px; border-radius: 999px; border: 1px solid var(--border); font-size: 15px; font-family: var(--font); }
+.hero-form input { flex: 1; min-width: 0; padding: 14px 18px; border-radius: 999px; border: 1px solid var(--border); font-size: 15px; font-family: var(--font); }
 .hero-form input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); }
 .hero-form button { border-radius: 999px; }
 .hero-trust { display: flex; gap: 32px; }

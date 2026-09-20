@@ -20,7 +20,7 @@ document.getElementById('csv-file').addEventListener('change', (e) => {
       rows = results.data.filter((r) => r.url).slice(0, 500).map((r) => ({ title: r.title || r.url, url: r.url }));
       document.getElementById('csv-summary').textContent = `${rows.length} row${rows.length === 1 ? '' : 's'} loaded.`;
       document.getElementById('preview-table').innerHTML = rows.length
-        ? `<table class="data-table" style="width:100%;font-size:13.5px"><thead><tr><th style="text-align:left">Title</th><th style="text-align:left">URL</th></tr></thead><tbody>${rows.slice(0, 8).map((r) => `<tr><td>${r.title}</td><td>${r.url}</td></tr>`).join('')}</tbody></table>${rows.length > 8 ? `<p class="muted small">+ ${rows.length - 8} more…</p>` : ''}`
+        ? `<table class="data-table" style="width:100%;font-size:13.5px"><thead><tr><th style="text-align:left">Title</th><th style="text-align:left">URL</th></tr></thead><tbody>${rows.slice(0, 8).map((r) => `<tr><td>${escapeHtml(r.title)}</td><td>${escapeHtml(r.url)}</td></tr>`).join('')}</tbody></table>${rows.length > 8 ? `<p class="muted small">+ ${rows.length - 8} more…</p>` : ''}`
         : '<p class="muted">No valid rows found. Make sure your CSV has a "url" column.</p>';
       document.getElementById('generate-btn').disabled = rows.length === 0;
     },

@@ -11,6 +11,17 @@ router.get('/qr-types', (req, res) => {
   res.json({ types: QR_TYPES });
 });
 
+// Returns the given folderId only if it actually belongs to this user, else
+// null. Without this check any authenticated user could file a QR code into
+// another account's folder id (folder ids are a single global sequence, not
+// scoped per-user), inflating that other user's folder counts with QR codes
+// that don't even show up in their own list.
+function ownFolderId(userId, folderId) {
+  if (!folderId) return null;
+  const folder = db.prepare('SELECT id FROM folders WHERE id = ? AND user_id = ?').get(folderId, userId);
+  return folder ? folder.id : null;
+}
+
 function serialize(row) {
   return {
     ...row,
@@ -59,7 +70,7 @@ router.post('/qrcodes', requireAuth, (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     req.user.id,
-    folderId || null,
+    ownFolderId(req.user.id, folderId),
     title,
     qrType,
     mode === 'dynamic' ? 'dynamic' : 'static',
@@ -89,7 +100,7 @@ router.put('/qrcodes/:id', requireAuth, (req, res) => {
     JSON.stringify(newContent),
     encodedValue,
     JSON.stringify(newStyle),
-    folderId !== undefined ? folderId : existing.folder_id,
+    folderId !== undefined ? ownFolderId(req.user.id, folderId) : existing.folder_id,
     active !== undefined ? (active ? 1 : 0) : existing.active,
     existing.id
   );
@@ -110,7 +121,7 @@ router.get('/folders', requireAuth, (req, res) => {
   const rows = db.prepare('SELECT * FROM folders WHERE user_id = ? ORDER BY created_at ASC').all(req.user.id);
   const withCounts = rows.map((f) => ({
     ...f,
-    count: db.prepare('SELECT COUNT(*) c FROM qrcodes WHERE folder_id = ?').get(f.id).c,
+    count: db.prepare('SELECT COUNT(*) c FROM qrcodes WHERE folder_id = ? AND user_id = ?').get(f.id, req.user.id).c,
   }));
   res.json({ folders: withCounts });
 });

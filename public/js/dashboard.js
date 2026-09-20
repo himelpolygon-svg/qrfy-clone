@@ -37,7 +37,7 @@ function renderFolders() {
   const el = document.getElementById('folder-list');
   el.innerHTML = FOLDERS.map((f) => `
     <div class="side-link ${activeFolder == f.id ? 'active' : ''}" data-folder="${f.id}" style="cursor:pointer;justify-content:space-between">
-      <span><span class="ic">📁</span>${f.name}</span>
+      <span><span class="ic">📁</span>${escapeHtml(f.name)}</span>
       <span class="muted small">${f.count}</span>
     </div>
   `).join('') + `<div class="side-link ${activeFolder === '' ? 'active' : ''}" data-folder="" style="cursor:pointer">All codes</div>`;
@@ -45,7 +45,7 @@ function renderFolders() {
     row.addEventListener('click', () => { activeFolder = row.dataset.folder; loadCodes(); renderFolders(); });
   });
   const sel = document.getElementById('filter-folder');
-  sel.innerHTML = '<option value="">All folders</option>' + FOLDERS.map((f) => `<option value="${f.id}">${f.name}</option>`).join('');
+  sel.innerHTML = '<option value="">All folders</option>' + FOLDERS.map((f) => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('');
 }
 
 function renderTypeFilter() {
@@ -59,10 +59,10 @@ function cardHtml(qr) {
   return `
     <div class="qr-card" data-id="${qr.id}">
       <div class="qr-thumb" data-thumb></div>
-      <div class="qr-card-title">${qr.title}</div>
+      <div class="qr-card-title">${escapeHtml(qr.title)}</div>
       <div class="qr-card-meta">
         ${modeBadge}${activeBadge}
-        <span class="badge badge-gray">${qrIcon(typeIconKey(qr.qr_type))} ${typeLabel(qr.qr_type)}</span>
+        <span class="badge badge-gray">${qrIcon(typeIconKey(qr.qr_type))} ${escapeHtml(typeLabel(qr.qr_type))}</span>
       </div>
       <div class="muted small">${qr.scanCount} scan${qr.scanCount === 1 ? '' : 's'}</div>
       <div class="qr-card-actions">

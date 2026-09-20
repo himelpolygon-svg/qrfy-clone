@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 
 const db = require('./db');
-const { attachUser } = require('./middleware/auth');
+const { attachUser, requireAuth } = require('./middleware/auth');
 
 const authRoutes = require('./routes/auth');
 const qrcodeRoutes = require('./routes/qrcodes');
@@ -31,15 +31,21 @@ app.use(session({
 app.use(attachUser);
 
 // ---- Logo / asset uploads (used by the editor's "add logo" feature) ----
+// Requires login and only accepts images: this used to accept ANY file from
+// ANY visitor (no auth check at all) and wrote it straight into the public,
+// statically-served uploads folder - effectively free, anonymous file hosting
+// on this server for anyone who found the endpoint.
+const ALLOWED_LOGO_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/gif']);
 const upload = multer({
   storage: multer.diskStorage({
     destination: UPLOAD_DIR,
     filename: (req, file, cb) => cb(null, Date.now() + '-' + Math.round(Math.random() * 1e6) + path.extname(file.originalname)),
   }),
   limits: { fileSize: 3 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, ALLOWED_LOGO_TYPES.has(file.mimetype)),
 });
-app.post('/api/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+app.post('/api/upload', requireAuth, upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded. Only PNG, JPG, WEBP, GIF or SVG images up to 3MB are accepted.' });
   res.json({ url: `/uploads/${req.file.filename}` });
 });
 
@@ -68,6 +74,17 @@ app.get('/app/account', page('app/account.html'));
 app.get('/app/bulk', page('app/bulk.html'));
 
 app.use((req, res) => res.status(404).send('Not found'));
+
+// Catches anything that throws synchronously in a route handler (a bad JSON
+// body, a duplicate short_code, etc.) - without this, Express's own default
+// handler sends the raw error back to the client, stack trace and all
+// (file paths, dependency versions), instead of a clean JSON error.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status || err.statusCode || 400;
+  console.error(err);
+  res.status(status).json({ error: status < 500 ? (err.message || 'Invalid request.') : 'Something went wrong on our end.' });
+});
 
 app.listen(PORT, () => {
   console.log(`QRfy Clone running at http://localhost:${PORT}`);

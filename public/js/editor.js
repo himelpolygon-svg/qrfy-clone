@@ -36,15 +36,25 @@ const qrCode = new QRCodeStyling({
 qrCode.append(document.getElementById('qr-canvas-wrap'));
 
 // ---------------- Client-side "static" value builder (mirrors server/lib/encode.js) ----------------
+// WIFI: QR payloads are semicolon/colon-delimited, so SSIDs or passwords that
+// contain \, ;, , or : must be backslash-escaped or they corrupt the format.
+function escapeWifi(str = '') {
+  return String(str).replace(/([\\;,:])/g, '\\$1');
+}
 function buildStaticValueClient(qrType, c = {}) {
   switch (qrType) {
     case 'url': return c.url || 'https://example.com';
     case 'text': return c.text || 'Sample text';
-    case 'email': return `mailto:${c.to || ''}${c.subject ? '?subject=' + encodeURIComponent(c.subject) : ''}`;
+    case 'email': {
+      const params = [];
+      if (c.subject) params.push('subject=' + encodeURIComponent(c.subject));
+      if (c.body) params.push('body=' + encodeURIComponent(c.body));
+      return `mailto:${c.to || ''}${params.length ? '?' + params.join('&') : ''}`;
+    }
     case 'call': return `tel:${c.phone || ''}`;
     case 'sms': return `SMSTO:${c.phone || ''}:${c.message || ''}`;
-    case 'whatsapp': return `https://wa.me/${(c.phone || '').replace(/[^\d]/g, '')}`;
-    case 'wifi': return `WIFI:T:${c.encryption || 'WPA'};S:${c.ssid || ''};P:${c.password || ''};H:${c.hidden ? 'true' : 'false'};;`;
+    case 'whatsapp': return `https://wa.me/${(c.phone || '').replace(/[^\d]/g, '')}${c.message ? '?text=' + encodeURIComponent(c.message) : ''}`;
+    case 'wifi': return `WIFI:T:${c.encryption || 'WPA'};S:${escapeWifi(c.ssid || '')};P:${escapeWifi(c.password || '')};H:${c.hidden ? 'true' : 'false'};;`;
     case 'vcard':
     case 'vcard-plus':
       return `BEGIN:VCARD\nVERSION:3.0\nN:${c.lastName || ''};${c.firstName || ''}\nFN:${[c.firstName, c.lastName].filter(Boolean).join(' ')}\n${c.phone ? 'TEL:' + c.phone + '\n' : ''}${c.email ? 'EMAIL:' + c.email + '\n' : ''}END:VCARD`;
@@ -254,10 +264,15 @@ function wirePillRow(id, key) {
     p.addEventListener('click', () => {
       document.querySelectorAll(`#${id} .pill-choice`).forEach((x) => x.classList.remove('active'));
       p.classList.add('active');
-      state.style[key] = p.dataset.val;
       if (key === 'frame') {
+        // state.style.frame is an object ({ style, text }), not a scalar like the
+        // other pill rows - mutate its .style field in place instead of clobbering
+        // the whole object with a bare string (that used to break the frame text
+        // and the "None" option entirely).
         state.style.frame.style = p.dataset.val;
         document.getElementById('frame-text-field').style.display = p.dataset.val === 'none' ? 'none' : '';
+      } else {
+        state.style[key] = p.dataset.val;
       }
       updatePreview();
     });

@@ -34,6 +34,17 @@ async function refreshNavAuthState() {
   }
 }
 
+// User-entered text (QR titles, folder names, CSV bulk rows, feedback answers...)
+// gets rendered back via innerHTML in a few places. Without escaping, a title
+// like `<img src=x onerror=alert(1)>` runs as script the next time the owner
+// opens their own dashboard - a stored XSS against yourself. Escape anything
+// user-supplied before it goes into an innerHTML template string.
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
 function logoSvgMarkup() {
   return '<span class="logo-mark">Q</span>';
 }
