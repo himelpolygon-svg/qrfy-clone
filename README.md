@@ -12,6 +12,13 @@ A full-featured QR code generator platform inspired by [qrfy.com](https://qrfy.c
 - **Bulk generation**: upload a CSV of `title,url` rows and generate + download a ZIP of up to 500 QR codes in one go (each is also saved to your account).
 - **Marketing site & pricing page** styled after QRfy's blue branding.
 
+
+## Live demo
+
+A live instance is running at **https://qrfy-clone.onrender.com** (free tier — it may take ~50s to wake up if idle, and the database resets on redeploys/restarts since the free plan has no persistent disk).
+
+Repo: https://github.com/himelpolygon-svg/qrfy-clone
+
 ## Getting started
 
 Requires Node.js 18+.
